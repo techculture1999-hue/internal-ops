@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>跨境电商内部操作系统</title>
+<style>
+  body { margin: 0; font-family: Arial, sans-serif; background-color: #000; color: #fff; }
+  header { background-color: #111; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; border-bottom: 1px solid #333; }
+  .container { display: flex; height: 100vh; }
+  nav { width: 260px; background-color: #0d0d0d; border-right: 1px solid #333; padding: 20px; overflow-y: auto; }
+  nav h3 { margin-top: 30px; font-size: 16px; color: #aaa; }
+  nav a { display: block; margin: 8px 0; color: #fff; text-decoration: none; padding: 6px 4px; border-radius: 4px; }
+  nav a:hover { background-color: #222; }
+  main { flex: 1; padding: 30px; overflow-y: auto; }
+  section { margin-bottom: 50px; }
+  h2 { border-bottom: 1px solid #444; padding-bottom: 8px; }
+  .box { background-color: #111; border: 1px solid #333; padding: 20px; border-radius: 8px; margin: 15px 0; }
+</style>
+</head>
+<body>
+<header>跨境电商内部操作系统 Shopify + CJ 中控台</header>
+<div class="container">
+  <nav>
+    <h3>阶段 1：核心系统</h3>
+    <a href="#cj">CJ Dropshipping 对接</a>
+    <a href="#shipping-zones">Shipping Zones 设置</a>
+    <a href="#policy">物流政策 Shipping Policy</a>
+
+    <h3>阶段 2：供应链系统</h3>
+    <a href="#warehouse">中国代发仓推荐</a>
+    <a href="#product-selection">选品系统</a>
+    <a href="#profit">利润计算器</a>
+    <a href="#shipping-rate">邮费查询系统</a>
+
+    <h3>阶段 3：1688 采购</h3>
+    <a href="#supplier">找供应商技巧</a>
+    <a href="#nego">议价模板</a>
+    <a href="#auto-sync">仓库对接 Shopify</a>
+    <a href="#image-search">图片找同款教程</a>
+  </nav>
+
+  <main>
+    <section id="cj"><h2>CJ Dropshipping 对接流程</h2><div class="box">...</div></section>
+    <section id="shipping-zones"><h2>Shipping Zones 设置</h2><div class="box">...</div></section>
+    <section id="policy"><h2>Shipping Policy</h2><div class="box">...</div></section>
+    <section id="warehouse"><h2>私人仓库推荐</h2><div class="box">...</div></section>
+    <section id="product-selection"><h2>选品系统</h2><div class="box">...</div></section>
+
+    <section id="profit">
+      <h2>利润计算器</h2>
+      <div class="box">
+        成本 <input id="cost"> 运费 <input id="shipCost"> 其他成本 <input id="otherCost"> 加价百分比 <input id="markup">
+        <button onclick="calcProfit()">计算</button>
+        <p>建议售价: <span id="sellPrice"></span></p>
+      </div>
+    </section>
+
+    <section id="shipping-rate">
+      <h2>邮费查询系统</h2>
+      <div class="box">
+        国家 <input id="country"> 重量(kg) <input id="weight">
+        <button onclick="queryRate()">查询</button>
+        <p id="rateResult"></p>
+      </div>
+    </section>
+
+    <section id="supplier"><h2>1688 找优质供应商技巧</h2><div class="box">...</div></section>
+    <section id="nego"><h2>中文议价模板</h2><div class="box">...</div></section>
+    <section id="auto-sync"><h2>仓库自动对接 Shopify</h2><div class="box">...</div></section>
+    <section id="image-search"><h2>图片找同款教程</h2><div class="box">...</div></section>
+  </main>
+</div>
+
+<script>
+function calcProfit() {
+  const cost = parseFloat(document.getElementById('cost').value) || 0;
+  const shipping = parseFloat(document.getElementById('shipCost').value) || 0;
+  const other = parseFloat(document.getElementById('otherCost').value) || 0;
+  const markup = parseFloat(document.getElementById('markup').value) || 0;
+  const price = (cost + shipping + other) * (1 + markup/100);
+  document.getElementById('sellPrice').innerText = price.toFixed(2);
+}
+
+function queryRate() {
+  const country = document.getElementById('country').value.trim().toLowerCase();
+  const weight = parseFloat(document.getElementById('weight').value) || 0;
+  const rates = {
+    "usa": {dhl:20, fedex:18, cj:12},
+    "uk": {dhl:22, fedex:21, cj:14},
+    "australia": {dhl:25, fedex:23, cj:16}
+  };
+  if (!rates[country]) {
+    document.getElementById('rateResult').innerHTML = "未找到该国家的预设费率。";
+    return;
+  }
+  const r = rates[country];
+  document.getElementById('rateResult').innerHTML =
+    `DHL: $${(r.dhl * weight).toFixed(2)}<br>FedEx: $${(r.fedex * weight).toFixed(2)}<br>CJ: $${(r.cj * weight).toFixed(2)}`;
+}
+</script>
+
+</body>
+</html>
