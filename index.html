@@ -1,104 +1,597 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>跨境电商内部操作系统</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>内部运营 — 跨境电商中控台（Shopify + CJ）</title>
 <style>
-  body { margin: 0; font-family: Arial, sans-serif; background-color: #000; color: #fff; }
-  header { background-color: #111; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; border-bottom: 1px solid #333; }
-  .container { display: flex; height: 100vh; }
-  nav { width: 260px; background-color: #0d0d0d; border-right: 1px solid #333; padding: 20px; overflow-y: auto; }
-  nav h3 { margin-top: 30px; font-size: 16px; color: #aaa; }
-  nav a { display: block; margin: 8px 0; color: #fff; text-decoration: none; padding: 6px 4px; border-radius: 4px; }
-  nav a:hover { background-color: #222; }
-  main { flex: 1; padding: 30px; overflow-y: auto; }
-  section { margin-bottom: 50px; }
-  h2 { border-bottom: 1px solid #444; padding-bottom: 8px; }
-  .box { background-color: #111; border: 1px solid #333; padding: 20px; border-radius: 8px; margin: 15px 0; }
+  :root{
+    --bg:#000; --card:#0F0F0F; --muted:#B3B3B3; --text:#E6E6E6; --accent:#1DB954; --danger:#FF4D4F;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,"Helvetica Neue",Arial,sans-serif}
+  header{background:linear-gradient(180deg,#0b0b0b,#0d0d0d);padding:14px 20px;border-bottom:1px solid #151515}
+  .brand{font-weight:700;font-size:16px}
+  .layout{display:flex;height:calc(100vh - 56px)}
+  nav{width:290px;padding:18px;border-right:1px solid #151515;background:linear-gradient(180deg,#090909,#0e0e0e);overflow:auto}
+  nav h4{margin:12px 0 4px 0;color:var(--muted);font-size:13px}
+  nav a{display:block;color:var(--text);text-decoration:none;padding:10px;border-radius:8px;margin:6px 0;font-size:14px}
+  nav a.active,nav a:hover{background:#111}
+  main{flex:1;padding:20px;overflow:auto}
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+  .card{grid-column:span 12;background:var(--card);border:1px solid #1a1a1a;padding:18px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.6)}
+  h2{margin:0 0 10px 0;font-size:18px}
+  p{color:var(--muted);margin:0 0 12px 0;line-height:1.5}
+  .row{display:flex;gap:12px}
+  label{font-size:13px;color:var(--muted);margin-bottom:6px;display:block}
+  input[type=text],input[type=number],select,textarea{width:100%;padding:10px;background:#050505;border:1px solid #222;color:var(--text);border-radius:8px}
+  textarea{min-height:120px;resize:vertical}
+  .btn{background:var(--accent);color:#000;padding:10px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:700}
+  .btn.ghost{background:transparent;border:1px solid #222;color:var(--text)}
+  .muted{color:var(--muted)}
+  .small{font-size:13px}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:8px;text-align:left;border-bottom:1px solid #131313;color:var(--muted)}
+  .kpi{display:flex;gap:18px}
+  .kpi .item{background:#0b0b0b;padding:14px;border-radius:8px;text-align:center;min-width:140px}
+  .code{background:#070707;padding:12px;border-radius:8px;font-family:monospace;color:var(--muted);overflow:auto}
+  .section-title{display:flex;justify-content:space-between;align-items:center}
+  footer{padding:14px;color:var(--muted);font-size:13px}
+  .chip{background:#0d0d0d;border:1px solid #222;padding:6px 10px;border-radius:999px;font-size:13px;color:var(--muted)}
+  .flex-col{display:flex;flex-direction:column;gap:8px}
+  .flex-row{display:flex;gap:8px;align-items:center}
+  @media(max-width:980px){nav{display:none}.layout{flex-direction:column;height:auto}main{padding:16px}}
 </style>
 </head>
 <body>
-<header>跨境电商内部操作系统 Shopify + CJ 中控台</header>
-<div class="container">
-  <nav>
-    <h3>阶段 1：核心系统</h3>
-    <a href="#cj">CJ Dropshipping 对接</a>
-    <a href="#shipping-zones">Shipping Zones 设置</a>
-    <a href="#policy">物流政策 Shipping Policy</a>
+<header>
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <div class="brand">跨境电商内部操作系统 · Shopify + CJ 中控台</div>
+    <div class="muted small">项目：Shopify  — 黑底内部中控台</div>
+  </div>
+</header>
 
-    <h3>阶段 2：供应链系统</h3>
-    <a href="#warehouse">中国代发仓推荐</a>
-    <a href="#product-selection">选品系统</a>
+<div class="layout">
+  <nav id="leftNav">
+    <h4>阶段 1 · 核心系统</h4>
+    <a href="#cj" class="active">CJ Dropshipping 对接</a>
+    <a href="#zones">Shipping Zones 设置</a>
+    <a href="#policy">Shipping Policy（物流政策）</a>
+
+    <h4>阶段 2 · 供应链 & 选品</h4>
+    <a href="#warehouses">私人仓库推荐</a>
+    <a href="#selection">选品系统</a>
     <a href="#profit">利润计算器</a>
-    <a href="#shipping-rate">邮费查询系统</a>
+    <a href="#shipping">邮费查询系统</a>
 
-    <h3>阶段 3：1688 采购</h3>
+    <h4>阶段 3 · 1688 采购</h4>
     <a href="#supplier">找供应商技巧</a>
-    <a href="#nego">议价模板</a>
-    <a href="#auto-sync">仓库对接 Shopify</a>
-    <a href="#image-search">图片找同款教程</a>
+    <a href="#templates">中文议价模板</a>
+    <a href="#autodock">仓库自动对接 Shopify</a>
+    <a href="#imagesearch">图片找同款教程</a>
   </nav>
 
   <main>
-    <section id="cj"><h2>CJ Dropshipping 对接流程</h2><div class="box">...</div></section>
-    <section id="shipping-zones"><h2>Shipping Zones 设置</h2><div class="box">...</div></section>
-    <section id="policy"><h2>Shipping Policy</h2><div class="box">...</div></section>
-    <section id="warehouse"><h2>私人仓库推荐</h2><div class="box">...</div></section>
-    <section id="product-selection"><h2>选品系统</h2><div class="box">...</div></section>
+    <div class="grid">
 
-    <section id="profit">
-      <h2>利润计算器</h2>
-      <div class="box">
-        成本 <input id="cost"> 运费 <input id="shipCost"> 其他成本 <input id="otherCost"> 加价百分比 <input id="markup">
-        <button onclick="calcProfit()">计算</button>
-        <p>建议售价: <span id="sellPrice"></span></p>
-      </div>
-    </section>
+      <!-- CJ -->
+      <section class="card" id="cj">
+        <div class="section-title">
+          <h2>CJ Dropshipping 对接（详细 SOP）</h2>
+          <div class="chip">阶段 1</div>
+        </div>
+        <p>目标：完成 CJ 账号注册、Shopify 绑定、自动订单同步、国际物流配置与测单，保证从下单到物流跟踪的自动化。</p>
 
-    <section id="shipping-rate">
-      <h2>邮费查询系统</h2>
-      <div class="box">
-        国家 <input id="country"> 重量(kg) <input id="weight">
-        <button onclick="queryRate()">查询</button>
-        <p id="rateResult"></p>
-      </div>
-    </section>
+        <h3 style="margin-top:12px">快速检查表（Checklist）</h3>
+        <ol class="muted">
+          <li>注册 CJ 账户（建议使用公司域名邮箱）并完成基础认证。</li>
+          <li>在 CJ 后台启用 Integrations → 选择 Shopify → 输入你的店铺域名并授权。</li>
+          <li>在 CJ 设置 Orders → 开启自动下单（付款完成后自动推单）。</li>
+          <li>在 CJ → Shipping 中选择默认仓 & 物流方式（ePacket / ChinaPost / CJ Express / 4PX 等）。</li>
+          <li>跑一次完整测试单：从 Shopify 下单 → CJ 接收 → CJ 下单给仓库/承运商 → tracking 回传 Shopify。</li>
+          <li>设置失败报警：订单同步失败通知到 Email / Slack / Telegram。</li>
+        </ol>
 
-    <section id="supplier"><h2>1688 找优质供应商技巧</h2><div class="box">...</div></section>
-    <section id="nego"><h2>中文议价模板</h2><div class="box">...</div></section>
-    <section id="auto-sync"><h2>仓库自动对接 Shopify</h2><div class="box">...</div></section>
-    <section id="image-search"><h2>图片找同款教程</h2><div class="box">...</div></section>
+        <h3 style="margin-top:12px">配置建议（关键字段）</h3>
+        <ul class="muted">
+          <li><strong>订单状态触发：</strong>仅在 payment_confirmed 时自动下单。</li>
+          <li><strong>失败重试：</strong>3 次，间隔 10 分钟；失败后人工留存。</li>
+          <li><strong>备注字段：</strong>自动写入 SKU、客户备注、定制信息（用于包装/标签）。</li>
+          <li><strong>定制小票：</strong>如需品牌包装，提交 CJ 的 Private Label 申请并确认 MOQ。</li>
+        </ul>
+
+        <h3 style="margin-top:12px">常见问题与解决</h3>
+        <p class="muted">同步不上：检查 Shopify API 权限；下单失败：查看库存映射 SKU 是否一致；tracking 不回传：检查 webhook 权限或仓库返回字段名（常见 field：tracking_number、carrier_code）。</p>
+      </section>
+
+      <!-- Shipping Zones -->
+      <section class="card" id="zones">
+        <h2>Shipping Zones 设置（Shopify）</h2>
+        <p>目标：在 Shopify 中建立三大市场分区（美国 / 欧洲 / 亚太），并配置标准、加速、快递三档运费与满额免邮策略。</p>
+
+        <h3>建议分区与规则</h3>
+        <ul class="muted">
+          <li><strong>美国（主要市场）</strong>：Standard（10–25 工作日）· Expedited（6–12）· Express（2–5）。免邮门槛建议 $49。</li>
+          <li><strong>欧洲（EU + UK）</strong>：可将 EU 拆为统一区，UK 单独。如果关税较高，可在商品页提示可能税费。</li>
+          <li><strong>亚太（含 AU / JP / SEA）</strong>：时效优先或成本优先根据 SKU 划分。</li>
+        </ul>
+
+        <h3>示例运费模板（按重量）</h3>
+        <div class="code">
+Standard（0–0.5kg） : $6<br>
+Standard（0.5–1kg） : $9<br>
+Standard（1–2kg） : $15<br>
+Expedited（0–1kg） : $15<br>
+Express（0–2kg） : $30
+        </div>
+
+        <h3 style="margin-top:10px">实操步骤（Shopify 后台）</h3>
+        <ol class="muted">
+          <li>Settings → Shipping and delivery → Manage rates → Create shipping profile。</li>
+          <li>Add zone → 选择国家/地区 → Add rate → 设置按重量或按价格的规则。</li>
+          <li>添加免邮条件：Condition → Based on order price → Minimum price = $49（示例）。</li>
+          <li>测试：用不同邮编/商品重量使用“Bogus Gateway”或真实结账页测试运费是否正确。</li>
+        </ol>
+      </section>
+
+      <!-- Shipping Policy -->
+      <section class="card" id="policy">
+        <h2>Shipping Policy（可直接复制到 Shopify Policies）</h2>
+        <p class="muted">以下为可直接复制粘贴的物流政策文本：包括发货时间、国际运输、税费、延误与退货说明。</p>
+
+        <textarea id="policyText" spellcheck="false" style="width:100%;min-height:200px;background:#050505;color:var(--text);border:1px solid #222;padding:12px;border-radius:8px;">
+发货时间
+我们通常在收到付款后 1–3 个工作日内处理并发货（不含周末及中国法定节假日）。如遇促销期，处理时间可能延长。
+
+国际运输与预计时效
+运输时间因目的地与承运商不同而异，常见估算：
+- 美国（Standard）：10–20 个工作日；（Expedited）：6–12 个工作日；（Express）：2–5 个工作日。
+- 欧洲（Standard）：12–25 个工作日；（Expedited）：8–15 个工作日。
+- 亚太（Standard）：7–20 个工作日。
+
+关税与税费
+国际订单可能产生进口税或关税，海关根据当地法规征收。任何目的地产生的税费由买家承担（除非我们在下单时已明确承担）。
+
+延误与责任
+若包裹在运输过程中出现不可抗力导致延误（例如：自然灾害、海关抽检、承运商罢工等），我们会积极协助追踪。但对超出可控范围的延误我们无法承担赔偿责任。
+
+跟踪
+发货后我们将在订单详情中上传跟踪号码。部分低成本渠道跟踪信息更新不及时，若跟踪长期无更新请联系客户服务，我们会协助调查。
+
+退货与退款（物流相关）
+- 若因错发或物流丢失导致退款，我们会按订单金额退款（不含买方产生的关税）。
+- 已签收的订单若无质量问题，退回运输费用由买家承担；若存在质量问题，请在 7 天内提交图片与说明申请退货，我们核实后安排退货/退款。
+
+联系方式
+如有疑问，请通过店铺客服页面或 support@yourcompany.com 联系我们。
+        </textarea>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button class="btn" onclick="copyToClipboard('policyText')">复制 Shipping Policy</button>
+          <button class="btn ghost" onclick="downloadText('shipping_policy.txt', document.getElementById('policyText').value)">下载 .txt</button>
+        </div>
+      </section>
+
+      <!-- Warehouses -->
+      <section class="card" id="warehouses">
+        <h2>中国私人仓 / 代发仓 推荐（决策矩阵）</h2>
+        <p>我为你准备了三种仓库类型对应不同业务场景。你选市场与 SKU 后我们可以把候选仓信息（联系人、报价）补全。</p>
+
+        <h3>仓库类型与适配场景</h3>
+        <ul class="muted">
+          <li><strong>A：欧美时效仓（推荐主推产品）</strong> — 优点：通关稳定、时效快；缺点：费用高。适合高价、转化稳定的主推品。</li>
+          <li><strong>B：低成本仓（最大化毛利）</strong> — 优点：成本低；缺点：时效慢、适合非季节性低价产品。</li>
+          <li><strong>C：TikTok / 爆单仓（小件优先）</strong> — 优点：处理小件速度快、支持高并发出单；缺点：库存与系统对接要求高。</li>
+        </ul>
+
+        <h3>候选仓（示例，启动调研时替换为真实联系方式）</h3>
+        <table>
+          <thead><tr><th>仓库</th><th>类型</th><th>优势</th><th>建议适用</th></tr></thead>
+          <tbody>
+            <tr><td>FastEU Logistics</td><td>欧美时效仓</td><td>清关能力强，DHL/UPS 直发</td><td>高价数码/家居</td></tr>
+            <tr><td>LowCost Fulfill</td><td>低成本仓</td><td>费用低，适合 mass SKU</td><td>低价消耗品</td></tr>
+            <tr><td>TikPack Rapid</td><td>TikTok 爆单仓</td><td>智能打单、单件拣货</td><td>TikTok 爆款、小件</td></tr>
+          </tbody>
+        </table>
+
+        <h3 style="margin-top:10px">接入要点</h3>
+        <ol class="muted">
+          <li>确认仓库是否支持 API 回传 tracking（必须）或 FTP / excel 自动回传。</li>
+          <li>检查拣货打单 SLA（如 0–4 小时、4–12 小时）。</li>
+          <li>确认退货流程与换货政策、费用承担方。</li>
+        </ol>
+      </section>
+
+      <!-- Selection -->
+      <section class="card" id="selection">
+        <h2>选品系统（评分矩阵 + 实操）</h2>
+        <p>核心维度：市场需求（搜索量 / 广告数据）、毛利空间、广告成本、物流可行性、退货率与季节性。</p>
+
+        <h3>评分权重（示例）</h3>
+        <ul class="muted">
+          <li>市场需求：30%</li>
+          <li>毛利空间：25%</li>
+          <li>物流成本/时效：20%</li>
+          <li>广告投放成本（CAC）：15%</li>
+          <li>退货风险：10%</li>
+        </ul>
+
+        <h3 style="margin-top:10px">简洁流程</h3>
+        <ol class="muted">
+          <li>从 TikTok / FB / Google 搜集潜力创意素材与关键词。</li>
+          <li>使用图片搜或 1688 图搜定位供货源。</li>
+          <li>估算采购成本、包装、国内运、国际运费、平台费用与广告费，输入利润计算器。</li>
+          <li>小批量测试（50–200 件），跑 2 周广告并评估转化与 ROAS。</li>
+        </ol>
+      </section>
+
+      <!-- Profit -->
+      <section class="card" id="profit">
+        <div class="section-title">
+          <h2>高级利润计算器（网页版 — 直接输入并得到建议售价）</h2>
+          <div class="chip">互动</div>
+        </div>
+
+        <p class="muted">支持：实际重/体积重比较、选择承运商估算运费、平台手续费、广告成本、目标毛利率反算售价、三档建议、导出 CSV。</p>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px">
+          <div>
+            <label>采购成本 (USD)</label>
+            <input id="cost" type="number" step="0.01" value="5.00">
+          </div>
+          <div>
+            <label>包装成本 (USD)</label>
+            <input id="pack" type="number" step="0.01" value="0.50">
+          </div>
+          <div>
+            <label>国内发货到出口仓 (USD)</label>
+            <input id="domShip" type="number" step="0.01" value="0.80">
+          </div>
+
+          <div>
+            <label>广告成本/件 (USD)</label>
+            <input id="ad" type="number" step="0.01" value="3.00">
+          </div>
+          <div>
+            <label>其他成本 (退货/补件) (USD)</label>
+            <input id="otherCost" type="number" step="0.01" value="0.20">
+          </div>
+          <div>
+            <label>平台手续费 (%)</label>
+            <input id="feeRate" type="number" step="0.01" value="6.00">
+          </div>
+
+          <div>
+            <label>长 (cm)</label>
+            <input id="len" type="number" step="0.1" value="20">
+          </div>
+          <div>
+            <label>宽 (cm)</label>
+            <input id="wid" type="number" step="0.1" value="15">
+          </div>
+          <div>
+            <label>高 (cm)</label>
+            <input id="hei" type="number" step="0.1" value="8">
+          </div>
+
+          <div>
+            <label>实际重量 (kg)</label>
+            <input id="actW" type="number" step="0.01" value="0.50">
+          </div>
+          <div>
+            <label>体积系数</label>
+            <select id="volFactor">
+              <option value="5000">5000 (国际常用)</option>
+              <option value="6000">6000</option>
+            </select>
+          </div>
+          <div>
+            <label>目标毛利率 (%)</label>
+            <input id="target" type="number" step="0.01" value="40">
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:12px">
+          <button class="btn" onclick="calcAll()">计算</button>
+          <button class="btn ghost" onclick="copyReport()">复制报告</button>
+          <button class="btn ghost" onclick="exportCSV()">导出 CSV</button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px">
+          <div class="kpi item">
+            <div class="muted small">建议售价（目标毛利）</div>
+            <div id="priceTarget" style="font-weight:800;font-size:18px">-</div>
+          </div>
+          <div class="kpi item">
+            <div class="muted small">预计毛利（USD）</div>
+            <div id="profitVal" style="font-weight:800;font-size:18px">-</div>
+          </div>
+          <div class="kpi item">
+            <div class="muted small">预计毛利率</div>
+            <div id="profitPct" style="font-weight:800;font-size:18px">-</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="muted small">计算说明：体积重 (cm³) / 体积系数 => kg；计费重量 = max(实际重, 体积重)。平台手续费按售价 % 计算，建议售价根据目标毛利与平台手续费反算。</div>
+        </div>
+      </section>
+
+      <!-- Shipping -->
+      <section class="card" id="shipping">
+        <h2>邮费查询系统（静态费率库，可替换为 API）</h2>
+        <p class="muted">输入目的地与重量，系统将列出常用承运商估算费用与预计时效。系统内置示例费率；如需对接实时费率，我会替你写 API 调用文档。</p>
+
+        <div style="display:flex;gap:12px;align-items:end;margin-top:12px">
+          <div style="flex:1">
+            <label>目的地（国家/地区，示例：USA / UK / DE / AU / MY）</label>
+            <input id="country" list="countries" placeholder="USA">
+            <datalist id="countries"><option value="USA"><option value="UK"><option value="DE"><option value="AU"><option value="MY"></datalist>
+          </div>
+          <div style="width:160px">
+            <label>重量 (kg)</label>
+            <input id="weight" type="number" step="0.01" value="0.5">
+          </div>
+          <div style="width:130px">
+            <button class="btn" onclick="queryRateAdvanced()">查询</button>
+          </div>
+        </div>
+
+        <div id="rateTable" style="margin-top:14px"></div>
+
+        <h3 style="margin-top:12px">如何替换为你的合同价</h3>
+        <p class="muted">在代码中编辑 RATE_DB 对象，把对应国家的 ratePerKg 修改为你签约价，或将 RATE_DB 替换为从后端读取的 JSON 文件。</p>
+      </section>
+
+      <!-- Supplier -->
+      <section class="card" id="supplier">
+        <h2>1688 供应商筛选与验厂（实操 SOP）</h2>
+        <p class="muted">目标：在 1688 上快速定位可靠供货源并规避风险（假货、掉单、交付不稳定）。</p>
+
+        <h3>筛选步骤</h3>
+        <ol class="muted">
+          <li>关键词与类目检索（使用细分关键词），筛选“现货供应 / 支持一件代发 / 企业认证”。</li>
+          <li>优先选择有工厂认证（“实力工厂”）或近 6 个月内大单成交记录的店铺。</li>
+          <li>查看商品评论：按时间筛查近 30–90 天的差评，判断是物流问题还是产品质量问题。</li>
+          <li>索要样品并做 3 项基础检测：功能/外观/包装。样品付款以小额为主，并保留聊天记录与订单截图。</li>
+          <li>小批量测试（100–300 件）观察发货速度与沟通效率，再决定大单与长期合作。</li>
+        </ol>
+
+        <h3 style="margin-top:8px">验厂与长期合作要点</h3>
+        <ul class="muted">
+          <li>确认产能：单日最大产出、备货周期。</li>
+          <li>确认安规与证书（如欧盟 CE、FCC、RoHS 等适配）</li>
+          <li>签订小额合同，明确交货与赔付条款，建议使用阿里担保交易或线下以合同约束。</li>
+        </ul>
+      </section>
+
+      <!-- Templates -->
+      <section class="card" id="templates">
+        <h2>中文议价模板（5 套，可复制）</h2>
+        <p class="muted">直接复制并粘贴到 1688 或微信中，稍微改公司名与数量即可。</p>
+
+        <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+          <button class="btn ghost" onclick="copyTextById('t1')">初次询价</button>
+          <button class="btn ghost" onclick="copyTextById('t2')">谈 MOQ</button>
+          <button class="btn ghost" onclick="copyTextById('t3')">一件代发</button>
+          <button class="btn ghost" onclick="copyTextById('t4')">批量价</button>
+          <button class="btn ghost" onclick="copyTextById('t5')">定制 Logo</button>
+        </div>
+
+        <pre id="t1" class="code" style="display:none">你好，我们是[公司名]，做海外独立站，看到贵司产品想询问：最小起订量（MOQ）是多少？是否支持一件代发？是否能提供样品？期望长期合作。</pre>
+        <pre id="t2" class="code" style="display:none">关于 MOQ：若我们把订单规模提高至 500/1000 件，是否可给到阶梯价？目标单价为 $X，是否可达成？</pre>
+        <pre id="t3" class="code" style="display:none">需要一件代发，请问单件发货价格（含打包）是多少？是否可在包裹内不放任何价格清单/发票？发货时效一般为多少天？</pre>
+        <pre id="t4" class="code" style="display:none">批量询价：我们预计采购 500 件，请提供含包装、标签、FOB/CIF 价格、交货期及可提供的付款条件（T/T / L/C / 信用证）。</pre>
+        <pre id="t5" class="code" style="display:none">定制 logo：需要在产品 / 包装上印制公司 logo，请提供 MOQ、模具/印刷费用、样品周期与追加周期。</pre>
+      </section>
+
+      <!-- Auto Dock -->
+      <section class="card" id="autodock">
+        <h2>仓库自动对接 Shopify（技术方案与字段映射）</h2>
+        <p class="muted">两套方案：无代码（中间件）和可定制 webhook 中台（推荐长期稳健方案）。</p>
+
+        <h3>方案 A：无代码/低代码（建议初期）</h3>
+        <ul class="muted">
+          <li>使用 ShipStation / EasyShip / CJ 官方插件进行抓单与回传 tracking。</li>
+          <li>优点：部署快；缺点：灵活性受限，费用按订单计。</li>
+        </ul>
+
+        <h3>方案 B：自建 webhook 中台（推荐长期）</h3>
+        <ol class="muted">
+          <li>Shopify → webhook orders/create → 中台服务（AWS Lambda / Heroku） → 转发给仓库 API。</li>
+          <li>字段映射（最重要）：order_id / line_items.sku / qty / shipping_address / phone / email / order_note。</li>
+          <li>仓库返回：tracking_number / carrier_code / shipped_at。中台收到后回写 Shopify orders/{id}/fulfillments。</li>
+        </ol>
+
+        <h3 style="margin-top:8px">安全与可靠性</h3>
+        <ul class="muted">
+          <li>签名验证 webhook（HMAC SHA256）以防篡改。</li>
+          <li>失败重试策略与人工告警（邮件/Slack）。</li>
+          <li>接口版本控制，记录每次推单与回传日志。</li>
+        </ul>
+      </section>
+
+      <!-- Image Search -->
+      <section class="card" id="imagesearch">
+        <h2>图片找同款教程（从 TikTok 到 1688）</h2>
+        <p class="muted">流程要点：抓图 → 精裁（去水印）→ 使用 1688 图搜/Google Lens → 对比细节（螺丝/材质/标识）→ 索样。</p>
+
+        <h3 style="margin-top:8px">实操技巧</h3>
+        <ol class="muted">
+          <li>用屏幕截图工具截取商品主图与细节图，去除品牌水印。</li>
+          <li>上传到 1688 的“图片搜索”，或使用 Google Lens 识别相似图片。</li>
+          <li>比较细节：材质、螺丝位置、按键布局、包装盒文字，判定是否为同厂或同模具。</li>
+          <li>在 1688 上用“同款/相似”筛选并查看销量与买家评价。</li>
+        </ol>
+      </section>
+
+    </div>
+
+    <footer>
+      说明：页面为单文件静态前端（黑底主题）。如需将静态邮费库替换为实时 API、或接入 Shopify/CJ API 并展示动态仪表板，我可继续帮助搭建后端中台与自动化流程。
+    </footer>
   </main>
 </div>
 
 <script>
-function calcProfit() {
-  const cost = parseFloat(document.getElementById('cost').value) || 0;
-  const shipping = parseFloat(document.getElementById('shipCost').value) || 0;
-  const other = parseFloat(document.getElementById('otherCost').value) || 0;
-  const markup = parseFloat(document.getElementById('markup').value) || 0;
-  const price = (cost + shipping + other) * (1 + markup/100);
-  document.getElementById('sellPrice').innerText = price.toFixed(2);
+/* Utility: copy and download */
+function copyToClipboard(idOrTextarea){
+  let txt = (typeof idOrTextarea === 'string') ? document.getElementById(idOrTextarea).value : idOrTextarea;
+  navigator.clipboard.writeText(txt).then(()=>alert('已复制到剪贴板'));
+}
+function downloadText(filename, text){
+  const blob = new Blob([text],{type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+function copyTextById(id){
+  const t = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(t).then(()=>alert('已复制'));
 }
 
-function queryRate() {
-  const country = document.getElementById('country').value.trim().toLowerCase();
-  const weight = parseFloat(document.getElementById('weight').value) || 0;
-  const rates = {
-    "usa": {dhl:20, fedex:18, cj:12},
-    "uk": {dhl:22, fedex:21, cj:14},
-    "australia": {dhl:25, fedex:23, cj:16}
-  };
-  if (!rates[country]) {
-    document.getElementById('rateResult').innerHTML = "未找到该国家的预设费率。";
-    return;
+/* --- Rate DB (静态示例，可替换) --- */
+const RATE_DB = {
+  "USA": {
+    carriers: {
+      DHL:{ratePerKg:30,lead:3},
+      FedEx:{ratePerKg:28,lead:4},
+      CJ:{ratePerKg:10,lead:12},
+      ChinaPost:{ratePerKg:8,lead:18}
+    }
+  },
+  "UK": {
+    carriers: {
+      DHL:{ratePerKg:32,lead:3},
+      FedEx:{ratePerKg:30,lead:4},
+      CJ:{ratePerKg:14,lead:14},
+      ChinaPost:{ratePerKg:9,lead:20}
+    }
+  },
+  "DE": {
+    carriers: {
+      DHL:{ratePerKg:33,lead:4},
+      FedEx:{ratePerKg:31,lead:5},
+      CJ:{ratePerKg:15,lead:15},
+      ChinaPost:{ratePerKg:10,lead:22}
+    }
+  },
+  "AU": {
+    carriers: {
+      DHL:{ratePerKg:35,lead:3},
+      FedEx:{ratePerKg:33,lead:4},
+      CJ:{ratePerKg:16,lead:12},
+      ChinaPost:{ratePerKg:11,lead:18}
+    }
+  },
+  "MY": {
+    carriers: {
+      DHL:{ratePerKg:20,lead:2},
+      FedEx:{ratePerKg:18,lead:3},
+      CJ:{ratePerKg:6,lead:10},
+      ChinaPost:{ratePerKg:4,lead:12}
+    }
   }
-  const r = rates[country];
-  document.getElementById('rateResult').innerHTML =
-    `DHL: $${(r.dhl * weight).toFixed(2)}<br>FedEx: $${(r.fedex * weight).toFixed(2)}<br>CJ: $${(r.cj * weight).toFixed(2)}`;
-}
-</script>
+};
 
+/* --- Profit calc --- */
+function calcAll(){
+  const cost = parseFloat(document.getElementById('cost').value) || 0;
+  const pack = parseFloat(document.getElementById('pack').value) || 0;
+  const dom = parseFloat(document.getElementById('domShip').value) || 0;
+  const ad = parseFloat(document.getElementById('ad').value) || 0;
+  const other = parseFloat(document.getElementById('otherCost').value) || 0;
+  const len = parseFloat(document.getElementById('len').value) || 0;
+  const wid = parseFloat(document.getElementById('wid').value) || 0;
+  const hei = parseFloat(document.getElementById('hei').value) || 0;
+  const actW = parseFloat(document.getElementById('actW').value) || 0;
+  const volFactor = parseFloat(document.getElementById('volFactor').value) || 5000;
+  const feePct = parseFloat(document.getElementById('feeRate').value) || 0;
+  const targetPct = parseFloat(document.getElementById('target').value) || 0;
+
+  const volWeight = (len * wid * hei) / volFactor / 1000 * 1000; // simply (L*W*H)/volFactor -> kg
+  const volW = (len * wid * hei) / volFactor;
+  const billableW = Math.max(actW, volW);
+
+  const country = (document.getElementById('country').value || 'USA').toUpperCase();
+  const carrierRates = RATE_DB[country] ? RATE_DB[country].carriers : null;
+  const baseShip = carrierRates ? (carrierRates.CJ.ratePerKg * billableW) : 0;
+
+  const totalCostExFee = cost + pack + dom + baseShip + ad + other;
+
+  // Solve for selling price P where:
+  // P - feePct%*P - totalCostExFee = targetPct*P
+  // => P*(1 - feePct - targetPct) = totalCostExFee
+  const denom = (1 - feePct/100 - targetPct/100);
+  const suggested = denom > 0 ? (totalCostExFee / denom) : null;
+
+  // refine: if denom<=0, fallback to simple markup on cost
+  const fallback = (totalCostExFee * (1 + targetPct/100 + feePct/100));
+
+  const priceMed = suggested ? suggested : fallback;
+  const priceLow = priceMed * 0.9;
+  const priceHigh = priceMed * 1.15;
+
+  const platformFee = priceMed * (feePct/100);
+  const profit = priceMed - (totalCostExFee + platformFee);
+  const profitPct = priceMed ? (profit / priceMed) : 0;
+
+  document.getElementById('priceTarget').innerText = priceMed ? '$' + priceMed.toFixed(2) : '无法计算';
+  document.getElementById('profitVal').innerText = profit ? '$' + profit.toFixed(2) : '-';
+  document.getElementById('profitPct').innerText = profitPct ? ( (profitPct*100).toFixed(1) + '%' ) : '-';
+
+  window._calcReport = {
+    cost,pack,dom,ad,other,len,wid,hei,actW,volW,billableW,baseShip,totalCostExFee,feePct,targetPct,priceLow,priceMed,priceHigh,platformFee,profit,profitPct
+  };
+
+  renderCarrierComparison(country,billableW);
+}
+
+/* --- Carrier comparison & rate query --- */
+function renderCarrierComparison(country,billableW){
+  const box = document.getElementById('rateTable');
+  box.innerHTML = '';
+  const db = RATE_DB[country];
+  if(!db){ box.innerHTML = '<div class="muted">未在静态库中找到该国家的费率。请在 RATE_DB 中添加或联系我对接 API。</div>'; return; }
+  const carriers = db.carriers;
+  const rows = [];
+  for(const k in carriers){
+    const r = carriers[k];
+    const cost = r.ratePerKg * billableW;
+    rows.push({carrier:k,cost,lead:r.lead});
+  }
+  rows.sort((a,b)=>a.cost-b.cost);
+  let html = '<table><thead><tr><th>承运商</th><th>估算费用 (USD)</th><th>预计时效 (工作日)</th></tr></thead><tbody>';
+  rows.forEach(r=>{ html += `<tr><td>${r.carrier}</td><td>$${r.cost.toFixed(2)}</td><td>${r.lead}</td></tr>` });
+  html += '</tbody></table>';
+  html += '<div style="margin-top:12px"><strong class="muted">最优推荐：</strong> ' + rows[0].carrier + '（$' + rows[0].cost.toFixed(2) + ', ' + rows[0].lead + ' 天）</div>';
+  box.innerHTML = html;
+}
+function queryRateAdvanced(){
+  const country = (document.getElementById('country').value || 'USA').toUpperCase();
+  const weight = parseFloat(document.getElementById('weight').value) || 0.5;
+  if(!RATE_DB[country]){ alert('未配置该国家的静态费率，请告知需要添加的国家'); return; }
+  renderCarrierComparison(country,weight);
+}
+
+/* --- Copy/Export for profit report --- */
+function copyReport(){
+  if(!window._calcReport){ alert('请先点击计算'); return; }
+  const r = window._calcReport;
+  let txt = '利润计算报告\n';
+  txt += `采购成本: $${r.cost}\n包装: $${r.pack}\n国内发货: $${r.dom}\n国际运费(估算): $${r.baseShip.toFixed(2)}\n广告: $${r.ad}\n其他: $${r.other}\n`;
+  txt += `建议售价(中): $${r.priceMed ? r.priceMed.toFixed(2): '-'}\n预计毛利: $${r.profit ? r.profit.toFixed(2): '-'}\n毛利率: ${r.profitPct ? (r.profitPct*100).toFixed(1)+'%':''}\n`;
+  navigator.clipboard.writeText(txt).then(()=>alert('已复制利润报告'));
+}
+function exportCSV(){
+  if(!window._calcReport){ alert('请先点击计算'); return; }
+  const r = window._calcReport;
+  const rows = [['字段','数值'],['采购成本',r.cost],['包装',r.pack],['国内发货',r.dom],['国际运费',r.baseShip.toFixed(2)],['广告',r.ad],['其他',r.other],['建议售价',r.priceMed? r.priceMed.toFixed(2):''],['预计毛利',r.profit? r.profit.toFixed(2):'']];
+  let csv = rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv'}); const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='profit_report.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+
+/* init */
+document.addEventListener('DOMContentLoaded', ()=>{ calcAll(); });
+</script>
 </body>
 </html>
